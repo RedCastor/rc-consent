@@ -171,10 +171,14 @@
     };
 
     var providers = [];
+    var cacheStatus = {};
+
     var defaultProvider = {
         category: 'analytics',
         onInitialise: function(rcc, status) {},
-        onAllow: function(rcc) {}
+        onAllow: function(rcc) {},
+        onRevoke: function(rcc) {},
+        onStatusChange: function(rcc, new_status, old_status) {}
     };
 
     var defaultOptions = {
@@ -182,46 +186,80 @@
         cookie: {
             name: 'rcc_consent',
             domain: '',
-            path: '/'
+            path: '/',
+            days: 7
         },
-        categories: [
-            'required',
-            'analytics',
-            'marketing'
-        ]
+        categories: []
     };
 
 
     //Event Listner confirm
-    var formConfirm = function( event, args  ) {
+    var rccConfirm = function( event, args  ) {
 
+        var status = rcc.getStatus();
+        var is_status_change = false;
+
+        //Status change
+        if (JSON.stringify(status) !== JSON.stringify(cacheStatus)) {
+            is_status_change = true;
+        }
+
+        //Call onChange revoke or allow for each provider
+        for (var i = 0; i < providers.length; i++) {
+            var category = providers[i].category;
+
+            if (is_status_change) {
+                providers[i].onStatusChange.call(providers[i], this, status, cacheStatus);
+            }
+
+            if (status[category] !== cacheStatus[category]) {
+
+                if (!status[category]) {
+                    providers[i].onRevoke.call(providers[i], this);
+                }
+                else {
+                    providers[i].onAllow.call(providers[i], this);
+                }
+            }
+        }
+
+        console.log('rccConfirm');
         console.log(event);
+        console.log(args);
+
+        cacheStatus = status;
     };
 
 
     rcc = {
         initialise: function(options) {
 
+            //Init options
             utils.deepExtend((this.options = {}), defaultOptions);
 
             if (utils.isPlainObject(options)) {
                 utils.deepExtend(this.options, options);
             }
 
-            var status = this.getStatus();
-
             //Add Event Listner for submit form
             if (this.options.formId) {
                 var el_form = window.document.getElementById(this.options.formId);
-                el_form.addEventListener('submit', formConfirm);
+                el_form.addEventListener('submit', rccConfirm);
             }
 
             //Add Event Listner for confirm form
-            window.document.addEventListener('rccConfirm', formConfirm);
+            window.document.addEventListener('rccConfirm', rccConfirm);
+
+            var status = this.getStatus();
 
             //Initialize each provider
             for (var i = 0; i < providers.length; i++) {
                 var category = providers[i].category;
+
+                //Add categories from provider
+                if (this.options.categories.indexOf(category) === -1) {
+                    this.options.categories.push(category);
+                }
 
                 providers[i].onInitialise.call(providers[i], this, status);
 
@@ -229,6 +267,8 @@
                     providers[i].onAllow.call(providers[i], this);
                 }
             }
+
+            cacheStatus = status;
         },
         addProvider: function (options) {
 
