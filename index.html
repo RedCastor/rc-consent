@@ -1,0 +1,141 @@
+<!doctype html>
+<html class="no-js" lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Angular Directive Cookie.</title>
+
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation-float.css"/>
+
+    <script type="text/javascript" src="src/rc-consent.js"></script>
+    <script type="text/javascript">
+        window.addEventListener("load", function() {
+            window.rcc.addProvider({
+                onInitialise: function(status) {
+                    console.log('GA');
+                    console.log('onInitialise');
+
+                    if (this.hasConsented('analytics')) {
+                        console.log('onInitialise: true');
+                    }
+                    else {
+                        console.log('onInitialise: false');
+                    }
+                },
+                onAllow: function(category) {
+                    console.log('onAllow:' + category);
+
+                    if (this.hasConsented('analytics')) {
+                        console.log('onAllow ' + category + ': true');
+                    }
+                    else {
+                        console.log('onAllow ' + category + ': false');
+                    }
+                }
+            });
+            window.rcc.addProvider({
+                category: 'marketing',
+                onInitialise: function (status) {
+                    console.log('GTM');
+                    console.log('onInitialise');
+                    console.log(this);
+
+                    if (this.hasConsented('analytics')) {
+                        console.log('onInitialise: true');
+                    }
+                    else {
+                        console.log('onInitialise: false');
+                    }
+                },
+                onAllow: function (category) {
+                    console.log('onAllow:' + category);
+
+                    if (this.hasConsented('analytics')) {
+                        console.log('onAllow ' + category + ': true');
+                    }
+                    else {
+                        console.log('onAllow ' + category + ': false');
+                    }
+                }
+            });
+            window.rcc.initialise({cookieName: 'consent'});
+        });
+    </script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular-cookies.js"></script>
+    <script type="text/javascript" src="vendors/rc-cookies.js"></script>
+    <script type="text/javascript">
+        'use strict';
+
+        var app = angular.module('app', ['ngCookies', 'rcCookies']);
+
+        app.controller('mainCtrl', ['$scope', function ($scope) {
+
+        }]);
+    </script>
+</head>
+
+<body data-ng-app="app" >
+<!--[if lt IE 9]>
+<div class="alert alert-warning browserupgrade">
+    You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+</div>
+<![endif]-->
+<main>
+    <div data-ng-controller="mainCtrl as main">
+        <br>
+        <div class="row">
+            <div class="small-12 medium-6 columns medium-centered">
+                <section class="card">
+                    <header class="card-divider">
+                        <h4 class="page-header">Declarative Cookie Form</h4>
+                    </header>
+                    <form novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                        <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
+                            <span>Check required fields</span>
+                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <p>{{main.$cookieFields | json}}</p>
+                        <div class="callout success" data-ng-if="cookieForm.$valid && main.isSubmit">
+                            <span>Submitted valid</span>
+                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <label>
+                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.analytics" class="cookie-field" placeholder="Search">
+                            Analytics
+                        </label>
+                        <label>
+                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.marketing" class="cookie-field">
+                            Marketing
+                        </label>
+
+                        <fieldset>
+                            <button type="submit" class="button primary">Accept</button>
+                            <button type="button" class="button alert" data-ng-click="main.isSubmit=false; main.$cookie=(null | setCookie:'consent');">Remove Cookie</button>
+                        </fieldset>
+                    </form>
+                </section>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="small-12 medium-6 columns medium-centered">
+                <div class="callout success" data-ng-if="main.$cookie">
+                    <h4>Cookie "consent" exist in your browser</h4>
+                    <span>{{main.$cookie | json}}</span>
+                </div>
+                <div class="callout alert" data-ng-if="!main.$cookie">
+                    <h4>Cookie "consent" not exist in your browser</h4>
+                    <span>{{main.$cookie | json}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
