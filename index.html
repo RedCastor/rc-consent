@@ -8,59 +8,86 @@
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation-float.css"/>
 
     <script type="text/javascript" src="src/rc-consent.js"></script>
-    <script type="text/javascript">
+    <script type="text/javascript" id="rcc_consent_GA">
         window.addEventListener("load", function() {
             window.rcc.addProvider({
-                onInitialise: function(status) {
-                    console.log('GA');
-                    console.log('onInitialise');
+                id: 'UA-XXXXX-Y',
+                anonymizeIp: true,
+                load: function() {
+                    if (typeof ga !== 'undefined') { return false; }
+                    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ // jshint ignore:line
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), // jshint ignore:line
+                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) // jshint ignore:line
+                    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+                },
+                onInitialise: function (provider, status) {
+                    console.log('GA Consent init');
 
-                    if (this.hasConsented('analytics')) {
-                        console.log('onInitialise: true');
+                    if (this.hasConsented(provider.category)) {
+                        console.log('hasConsented: true');
                     }
                     else {
-                        console.log('onInitialise: false');
+                        console.log('hasConsented: false');
                     }
                 },
-                onAllow: function(category) {
-                    console.log('onAllow:' + category);
+                onAllow: function (provider) {
+                    console.log('GA consent allow:' + provider.category);
 
-                    if (this.hasConsented('analytics')) {
-                        console.log('onAllow ' + category + ': true');
+                    if (this.hasConsented(provider.category)) {
+                        console.log('hasConsented ' + provider.category + ': true');
+
+                        provider.load();
+                        ga('create', this.id, 'auto');
+                        ga('set', 'anonymizeIp', this.anonymizeIp);
+                        ga('send', 'event', 'Cookie Consent', 'Accepted');
+                        ga('send', 'pageview');
                     }
                     else {
-                        console.log('onAllow ' + category + ': false');
-                    }
-                }
-            });
-            window.rcc.addProvider({
-                category: 'marketing',
-                onInitialise: function (status) {
-                    console.log('GTM');
-                    console.log('onInitialise');
-                    console.log(this);
-
-                    if (this.hasConsented('analytics')) {
-                        console.log('onInitialise: true');
-                    }
-                    else {
-                        console.log('onInitialise: false');
+                        console.log('hasConsented ' + provider.category + ': false');
                     }
                 },
-                onAllow: function (category) {
-                    console.log('onAllow:' + category);
+                onStatusChange: function () {
+                    provider.load();
 
-                    if (this.hasConsented('analytics')) {
-                        console.log('onAllow ' + category + ': true');
-                    }
-                    else {
-                        console.log('onAllow ' + category + ': false');
-                    }
+                    ga('create', cookieConsent.options.gaPropertyId, {'storage': 'none'});
+                    ga('send', 'event', 'Cookie Consent', 'Declined');
                 }
             });
-            window.rcc.initialise({cookieName: 'consent'});
         });
     </script>
+    <script type="text/javascript" id="rcc_consent_ADS">
+        window.addEventListener("load", function() {
+            window.rcc.addProvider({
+                category: 'marketing',
+                onInitialise: function (provider, status) {
+                    console.log('ADS Consent init');
+
+                    if (this.hasConsented(provider.category)) {
+                        console.log('hasConsented: true');
+                    }
+                    else {
+                        console.log('hasConsented: false');
+                    }
+                },
+                onAllow: function (provider) {
+                    console.log('ADS consent allow:' + provider.category);
+
+                    if (this.hasConsented(category)) {
+                        console.log('hasConsented ' + provider.category + ': true');
+                    }
+                    else {
+                        console.log('hasConsented ' + provider.category + ': false');
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        window.addEventListener("load", function() {
+            window.rcc.initialise({cookie: {name: 'consent'}});
+        });
+    </script>
+
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular-cookies.js"></script>

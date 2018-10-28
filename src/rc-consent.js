@@ -173,12 +173,16 @@
     var providers = [];
     var defaultProvider = {
         category: 'analytics',
-        onInitialise: function(status) {},
-        onAllow: function(category) {}
+        onInitialise: function(provider, status) {},
+        onAllow: function(provider) {}
     };
 
     var defaultOptions = {
-        cookieName: 'rcc_consent',
+        cookie: {
+            name: 'rcc_consent',
+            domain: '',
+            path: '/'
+        },
         categories: [
             'required',
             'analytics',
@@ -190,26 +194,24 @@
     rcc = {
         initialise: function(options) {
 
-            utils.deepExtend((rcc.options = {}), defaultOptions);
+            utils.deepExtend((this.options = {}), defaultOptions);
 
             if (utils.isPlainObject(options)) {
-                utils.deepExtend(rcc.options, options);
+                utils.deepExtend(this.options, options);
             }
 
-            var status = rcc.getStatus();
+            var status = this.getStatus();
 
+            //Initialize each provider
             for (var i = 0; i < providers.length; i++) {
-
-                providers[i].onInitialise.bind(this, status)();
-
                 var category = providers[i].category;
 
-                if (status[category]) {
-                    providers[i].onAllow.bind(this, category)();
+                providers[i].onInitialise.bind(this, providers[i], status)();
+
+                if (status[category] === true) {
+                    providers[i].onAllow.bind(this, providers[i])();
                 }
             }
-
-            console.log(providers);
         },
         addProvider: function (options) {
 
@@ -228,11 +230,23 @@
         },
         getStatus: function() {
 
-            return utils.getCookie(rcc.options.cookieName) || {};
+            var cookie = utils.getCookie(this.options.cookie.name) || {};
+
+            return cookie;
+        },
+        clearStatus: function() {
+
+            var cookie = this.options.cookie;
+
+            utils.setCookie(cookie.name, '', -1, cookie.domain, cookie.path);
         },
         hasConsented: function ( category ) {
 
             var status = this.getStatus();
+
+            if (!category) {
+                return !!status;
+            }
 
             return !!status[category];
         }
