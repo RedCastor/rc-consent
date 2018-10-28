@@ -20,36 +20,36 @@
                         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) // jshint ignore:line
                     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
                 },
-                onInitialise: function (provider, status) {
+                onInitialise: function (rcc, status) {
                     console.log('GA Consent init');
 
-                    if (this.hasConsented(provider.category)) {
+                    if (rcc.hasConsented(this.category)) {
                         console.log('hasConsented: true');
                     }
                     else {
                         console.log('hasConsented: false');
                     }
                 },
-                onAllow: function (provider) {
-                    console.log('GA consent allow:' + provider.category);
+                onAllow: function (rcc) {
+                    console.log('GA consent allow:' + this.category);
 
-                    if (this.hasConsented(provider.category)) {
-                        console.log('hasConsented ' + provider.category + ': true');
+                    if (rcc.hasConsented(this.category)) {
+                        console.log('hasConsented ' + this.category + ': true');
 
-                        provider.load();
+                        this.load();
                         ga('create', this.id, 'auto');
                         ga('set', 'anonymizeIp', this.anonymizeIp);
                         ga('send', 'event', 'Cookie Consent', 'Accepted');
                         ga('send', 'pageview');
                     }
                     else {
-                        console.log('hasConsented ' + provider.category + ': false');
+                        console.log('hasConsented ' + this.category + ': false');
                     }
                 },
-                onStatusChange: function () {
-                    provider.load();
+                onStatusChange: function (new_status, old_status) {
+                    this.load();
 
-                    ga('create', cookieConsent.options.gaPropertyId, {'storage': 'none'});
+                    ga('create', this.id, {'storage': 'none'});
                     ga('send', 'event', 'Cookie Consent', 'Declined');
                 }
             });
@@ -59,24 +59,24 @@
         window.addEventListener("load", function() {
             window.rcc.addProvider({
                 category: 'marketing',
-                onInitialise: function (provider, status) {
+                onInitialise: function (rcc, status) {
                     console.log('ADS Consent init');
 
-                    if (this.hasConsented(provider.category)) {
+                    if (rcc.hasConsented(this.category)) {
                         console.log('hasConsented: true');
                     }
                     else {
                         console.log('hasConsented: false');
                     }
                 },
-                onAllow: function (provider) {
-                    console.log('ADS consent allow:' + provider.category);
+                onAllow: function (rcc) {
+                    console.log('ADS consent allow:' + this.category);
 
-                    if (this.hasConsented(category)) {
-                        console.log('hasConsented ' + provider.category + ': true');
+                    if (rcc.hasConsented(this.category)) {
+                        console.log('hasConsented ' + this.category + ': true');
                     }
                     else {
-                        console.log('hasConsented ' + provider.category + ': false');
+                        console.log('hasConsented ' + this.category + ': false');
                     }
                 }
             });
@@ -84,7 +84,7 @@
     </script>
     <script>
         window.addEventListener("load", function() {
-            window.rcc.initialise({cookie: {name: 'consent'}});
+            window.rcc.initialise({formId: 'consent_form', cookie: {name: 'consent'}});
         });
     </script>
 
@@ -118,7 +118,35 @@
                     <header class="card-divider">
                         <h4 class="page-header">Declarative Cookie Form</h4>
                     </header>
-                    <form novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                    <form id="consent_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                        <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
+                            <span>Check required fields</span>
+                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <p>{{main.$cookieFields | json}}</p>
+                        <div class="callout success" data-ng-if="cookieForm.$valid && main.isSubmit">
+                            <span>Submitted valid</span>
+                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <label>
+                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.analytics" class="cookie-field" placeholder="Search">
+                            Analytics
+                        </label>
+                        <label>
+                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.marketing" class="cookie-field">
+                            Marketing
+                        </label>
+
+                        <fieldset>
+                            <button type="submit" class="button primary">Accept</button>
+                            <button type="button" class="button alert" data-ng-click="main.isSubmit=false; main.$cookie=(null | setCookie:'consent');">Remove Cookie</button>
+                        </fieldset>
+                    </form>
+                    <form id="consent_form2">
                         <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
                             <span>Check required fields</span>
                             <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">

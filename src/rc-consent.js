@@ -173,11 +173,12 @@
     var providers = [];
     var defaultProvider = {
         category: 'analytics',
-        onInitialise: function(provider, status) {},
-        onAllow: function(provider) {}
+        onInitialise: function(rcc, status) {},
+        onAllow: function(rcc) {}
     };
 
     var defaultOptions = {
+        formId: null,
         cookie: {
             name: 'rcc_consent',
             domain: '',
@@ -188,6 +189,13 @@
             'analytics',
             'marketing'
         ]
+    };
+
+
+    //Event Listner confirm
+    var formConfirm = function( event, args  ) {
+
+        console.log(event);
     };
 
 
@@ -202,14 +210,23 @@
 
             var status = this.getStatus();
 
+            //Add Event Listner for submit form
+            if (this.options.formId) {
+                var el_form = window.document.getElementById(this.options.formId);
+                el_form.addEventListener('submit', formConfirm);
+            }
+
+            //Add Event Listner for confirm form
+            window.document.addEventListener('rccConfirm', formConfirm);
+
             //Initialize each provider
             for (var i = 0; i < providers.length; i++) {
                 var category = providers[i].category;
 
-                providers[i].onInitialise.bind(this, providers[i], status)();
+                providers[i].onInitialise.call(providers[i], this, status);
 
                 if (status[category] === true) {
-                    providers[i].onAllow.bind(this, providers[i])();
+                    providers[i].onAllow.call(providers[i], this);
                 }
             }
         },
@@ -251,14 +268,6 @@
             return !!status[category];
         }
     };
-
-    //Event Listner for confirm
-    window.document.addEventListener('rccConfirm', function( event ) {
-
-        console.log(event);
-    });
-
-
 
     //Prevent run twice
     rcc.hasInitialised = true;
