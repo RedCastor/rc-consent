@@ -281,12 +281,15 @@
 
             var status = this.getStatus();
 
+
             //Initialize each provider
             for (var i = 0; i < providers.length; i++) {
 
+                var category = providers[i].category;
+
                 providers[i].onInitialise.call(providers[i], this, status);
 
-                if (status[category] === true) {
+                if (category && status[category] === true) {
                     providers[i].onAllow.call(providers[i], this);
                 }
             }

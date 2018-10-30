@@ -55,7 +55,6 @@
         window.addEventListener("load", function() {
             window.rcc.addProvider({
                 id: 'ads',
-                trackingId: 'UA-XXXXX-Y',
                 category: 'marketing',
                 onInitialise: function (rcc, status) {
                     console.log('ADS Consent init');
@@ -80,8 +79,17 @@
         window.addEventListener("load", function() {
             window.rcc.addProvider({
                 id: 'hotjar',
-                trackingId: 'HJ-XXXXX-Y',
                 category: 'required',
+                load: function () {
+                    (function(h,o,t,j,a,r){
+                        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                        h._hjSettings={hjid:1070708,hjsv:6};
+                        a=o.getElementsByTagName('head')[0];
+                        r=o.createElement('script');r.async=1;
+                        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                        a.appendChild(r);
+                    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+                },
                 onInitialise: function (rcc, status) {
                     console.log('HOTJAR Consent init');
 
@@ -94,6 +102,8 @@
                 },
                 onAllow: function (rcc) {
                     console.log('HOTJAR consent allow:' + this.category);
+
+                    this.load();
                 },
                 onRevoke: function (rcc) {
                     console.log('HOTJAR consent revoke:' + this.category);
