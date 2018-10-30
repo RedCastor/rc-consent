@@ -346,17 +346,24 @@
 
             var cookie = this.options.cookie;
             var value = utils.getCookie(this.options.cookie.name);
+            var default_value = utils.isPlainObject(this.options.defaultStatus) ? this.options.defaultStatus : {};
             var status = {};
 
             if (!utils.isPlainObject(value)) {
                 value = {};
             }
 
+
             for (var i = 0; i < this.options.categories.length; i++) {
 
                 var cat_status = value[this.options.categories[i]];
 
-                status[this.options.categories[i]] = cat_status === true ? cat_status : false;
+                //Set default status from options default status
+                if (cat_status === undefined && default_value[this.options.categories[i]] === true) {
+                    cat_status = true;
+                }
+
+                status[this.options.categories[i]] = cat_status === true ? true : false;
             }
 
             return status;
