@@ -345,8 +345,6 @@
                 }
             }
 
-            console.log('rccSetConsent');
-
             cacheStatus = status;
         },
         getStatus: function() {
@@ -441,7 +439,6 @@
 
         if (!args && event.type === 'submit') {
 
-            console.log(event);
             var el_input = event.target.querySelectorAll('input[name]');
 
             if (el_input.length) {
@@ -457,7 +454,6 @@
 
         }
 
-        console.log(args);
         rcc.setConsent(args);
     };
 
