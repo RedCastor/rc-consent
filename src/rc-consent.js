@@ -195,7 +195,9 @@
             path: '/',
             days: 7
         },
-        categories: []
+        categories: [
+            'analytics'
+        ]
     };
 
 
@@ -218,16 +220,20 @@
             //Add Event Listner for confirm form
             window.document.addEventListener('rccSetConsent', setConsent);
 
-            var status = this.getStatus();
-
-            //Initialize each provider
-            for (var i = 0; i < providers.length; i++) {
-                var category = providers[i].category;
+            //Init Categories
+            for (var i_cat = 0; i_cat < providers.length; i_cat++) {
+                var category = providers[i_cat].category || 'analytics';
 
                 //Add categories from provider
                 if (this.options.categories.indexOf(category) === -1) {
                     this.options.categories.push(category);
                 }
+            }
+
+            var status = this.getStatus();
+
+            //Initialize each provider
+            for (var i = 0; i < providers.length; i++) {
 
                 providers[i].onInitialise.call(providers[i], this, status);
 
@@ -297,9 +303,17 @@
         getStatus: function() {
 
             var cookie = this.options.cookie;
-            var value = utils.getCookie(this.options.cookie.name) || {};
+            var value = this.getDefaultStatus();
+            var current_value = utils.getCookie(this.options.cookie.name) || {};
             var value_hash = utils.getCookie(this.options.cookie.name + '_hash');
 
+            //Set default status cookie if not set as plain object
+            if (JSON.stringify(current_value) !== JSON.stringify(value)) {
+
+                utils.setCookie(cookie.name, value, 0, cookie.domain, cookie.path);
+            }
+
+            //Remove hash not same as cookie status
             if (value_hash !== utils.hash(JSON.stringify(value))) {
 
                 utils.setCookie(this.options.cookie.name + '_hash', '', -1, cookie.domain, cookie.path);
@@ -313,14 +327,12 @@
 
             if (!utils.isPlainObject(value)) {
 
-                value = utils.getCookie(this.options.cookie.name) || {};
-            }
-            else {
-                utils.setCookie(cookie.name, value, -1, cookie.domain, cookie.path);
+                value = this.getDefaultStatus();
             }
 
             var cookie_hash = utils.hash(JSON.stringify(value));
 
+            utils.setCookie(cookie.name, value, 0, cookie.domain, cookie.path);
             utils.setCookie(cookie.name + '_hash', cookie_hash, cookie.days, cookie.domain, cookie.path);
         },
         clearStatus: function() {
@@ -329,6 +341,25 @@
 
             utils.setCookie(cookie.name, '', -1, cookie.domain, cookie.path);
             utils.setCookie(cookie.name + '_hash', '', -1, cookie.domain, cookie.path);
+        },
+        getDefaultStatus: function() {
+
+            var cookie = this.options.cookie;
+            var value = utils.getCookie(this.options.cookie.name);
+            var status = {};
+
+            if (!utils.isPlainObject(value)) {
+                value = {};
+            }
+
+            for (var i = 0; i < this.options.categories.length; i++) {
+
+                var cat_status = value[this.options.categories[i]];
+
+                status[this.options.categories[i]] = cat_status === true ? cat_status : false;
+            }
+
+            return status;
         },
         hasConsented: function ( category ) {
 

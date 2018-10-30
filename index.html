@@ -24,7 +24,7 @@
                 onInitialise: function (rcc, status) {
                     console.log('GA Consent init');
 
-                    if (rcc.hasConsented()) {
+                    if (rcc.hasConsented(this.category)) {
                         console.log('hasConsented: true');
                     }
                     else {
@@ -86,6 +86,36 @@
             });
         });
     </script>
+    <script type="text/javascript" id="rcc_consent_hotjar">
+        window.addEventListener("load", function() {
+            window.rcc.addProvider({
+                id: 'hotjar',
+                trackingId: 'HJ-XXXXX-Y',
+                category: 'required',
+                onInitialise: function (rcc, status) {
+                    console.log('HOTJAR Consent init');
+
+                    if (rcc.hasConsented(this.category)) {
+                        console.log('hasConsented: true');
+                    }
+                    else {
+                        console.log('hasConsented: false');
+                    }
+                },
+                onAllow: function (rcc) {
+                    console.log('HOTJAR consent allow:' + this.category);
+                },
+                onRevoke: function (rcc) {
+                    console.log('HOTJAR consent revoke:' + this.category);
+                },
+                onStatusChange: function (rcc, new_status, old_status) {
+                    console.log('HOTJAR consent status change');
+                    console.log(new_status);
+                    console.log(old_status);
+                }
+            });
+        });
+    </script>
     <script>
         window.addEventListener("load", function() {
             window.rcc.initialise({formId: 'rcc_form', cookie: {name: 'consent'}});
@@ -123,7 +153,7 @@
                     <header class="card-divider">
                         <h4 class="page-header">Declarative Cookie Form</h4>
                     </header>
-                    <form id="rcc_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-init="{analytics: false, marketing:false}" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                    <form id="rcc_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
                         <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
                             <span>Check required fields</span>
                             <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
