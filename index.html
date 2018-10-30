@@ -118,16 +118,91 @@
     </script>
 
     <style>
-        .switch-toggle-wrapper {
-            display: flex;
-            margin-bottom: 1rem;
-            justify-content: space-between;
-            align-items: center;
+        /* Switch: source from https://materializecss.com/switches.html */
+        .switch, .switch * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        .switch-toggle-wrapper .switch {
-            margin-bottom: 0;
+        .switch label {
+            cursor: pointer;
         }
+
+        .switch label input[type=checkbox] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch label input[type=checkbox]:checked + .lever {
+            background-color: #84c7c1;
+        }
+
+        .switch label input[type=checkbox]:checked + .lever:before, .switch label input[type=checkbox]:checked + .lever:after {
+            left: 18px;
+        }
+
+        .switch label input[type=checkbox]:checked + .lever:after {
+            background-color: #26a69a;
+        }
+
+        .switch label .lever {
+            content: "";
+            display: inline-block;
+            position: relative;
+            width: 36px;
+            height: 14px;
+            background-color: rgba(0, 0, 0, 0.38);
+            border-radius: 15px;
+            margin-right: 10px;
+            transition: background 0.3s ease;
+            vertical-align: middle;
+            margin: 0 16px;
+        }
+
+        .switch label .lever:before, .switch label .lever:after {
+            content: "";
+            position: absolute;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            left: 0;
+            top: -3px;
+            transition: left 0.3s ease, background .3s ease, box-shadow 0.1s ease, transform .1s ease;
+        }
+
+        .switch label .lever:before {
+            background-color: rgba(38, 166, 154, 0.15);
+        }
+
+        .switch label .lever:after {
+            background-color: #F1F1F1;
+            box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+        }
+
+        input[type=checkbox]:checked:not(:disabled) ~ .lever:active::before,
+        input[type=checkbox]:checked:not(:disabled).tabbed:focus ~ .lever::before {
+            transform: scale(2.4);
+            background-color: rgba(38, 166, 154, 0.15);
+        }
+
+        input[type=checkbox]:not(:disabled) ~ .lever:active:before,
+        input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::before {
+            transform: scale(2.4);
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .switch input[type=checkbox][disabled] + .lever {
+            cursor: default;
+            background-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .switch label input[type=checkbox][disabled] + .lever:after,
+        .switch label input[type=checkbox][disabled]:checked + .lever:after {
+            background-color: #949494;
+        }
+
     </style>
 </head>
 
@@ -143,53 +218,57 @@
         <div class="row">
             <div class="small-12 medium-6 columns medium-centered">
                 <div class="reveal" id="consentModal" data-reveal data-close-on-click="false" data-close-on-esc="false">
-                    <section class="card">
-                        <header class="card-divider">
-                            <h4 class="page-header">Consent Form</h4>
-                        </header>
-                        <form id="consent_form" novalidate name="consentForm" class="card-section cookie-form" >
-                            <div class="switch-toggle-wrapper">
-                                <div class="switch tiny">
-                                    <input class="switch-input" id="tinySwitchRequired"  name="required" type="checkbox">
-                                    <label class="switch-paddle" for="tinySwitchRequired">
-                                        <span class="show-for-sr">Required</span>
-                                        <span class="switch-active" aria-hidden="true">Yes</span>
-                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                    <header class="row column">
+                        <h4 class="page-header">This website uses cookies</h4>
+                    </header>
+                    <section class="row column">
+                        <p>
+                            We use cookies to personalise content and ads, to provide social media features and to analyse our traffic. We also share information about your use of our site with our social media, advertising and analytics partners who may combine it with other information that you’ve provided to them or that they’ve collected from your use of their services. You consent to our cookies if you continue to use our website.
+                        </p>
+                        <form id="consent_form" novalidate name="consentForm" class="row cookie-form" >
+
+                            <div class="small-4 column">
+                                <strong>Necessary</strong>
+                                <div class="switch">
+                                    <label>
+                                        Deny
+                                        <input type="checkbox" name="required" disabled>
+                                        <span class="lever"></span>
+                                        Allow
                                     </label>
                                 </div>
-                                <span>Required</span>
                             </div>
 
-                            <div class="switch-toggle-wrapper">
-                                <div class="switch tiny">
-                                    <input class="switch-input" id="tinySwitchAnalytics"  name="analytics" type="checkbox">
-                                    <label class="switch-paddle" for="tinySwitchAnalytics">
-                                        <span class="show-for-sr">Analytics</span>
-                                        <span class="switch-active" aria-hidden="true">Yes</span>
-                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                            <div class="small-4 column">
+                                <strong>Analytics</strong>
+                                <div class="switch">
+                                    <label>
+                                        Deny
+                                        <input type="checkbox" name="analytics">
+                                        <span class="lever"></span>
+                                        Allow
                                     </label>
                                 </div>
-                                <span>Analytics</span>
                             </div>
 
-                            <div class="switch-toggle-wrapper">
-                                <div class="switch tiny">
-                                    <input class="switch-input" id="tinySwitchMarketing"  name="marketing" type="checkbox">
-                                    <label class="switch-paddle" for="tinySwitchMarketing">
-                                        <span class="show-for-sr">Marketing</span>
-                                        <span class="switch-active" aria-hidden="true">Yes</span>
-                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                            <div class="small-4 column">
+                                <strong>Marketing</strong>
+                                <div class="switch">
+                                    <label>
+                                        Deny
+                                        <input type="checkbox" name="marketing">
+                                        <span class="lever"></span>
+                                        Allow
                                     </label>
                                 </div>
-                                <span>Marketing</span>
                             </div>
 
-                            <input type="submit" class="button primary" value="Accept">
+                            <input type="submit" class="button hollow float-right" value="Accept">
                         </form>
                     </section>
                 </div>
 
-                <p><button class="button" data-open="consentModal" >Cookie Policy</button></p>
+                <p><button class="button float-center" data-open="consentModal" >Cookie Policy</button></p>
             </div>
         </div>
     </div>
