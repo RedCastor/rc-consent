@@ -42,10 +42,10 @@
                     .split(';')
                     .shift();
 
-            value = decodeURIComponent(value);
-
             try {
-                value = JSON.parse(decodeURIComponent(value));
+                var val_obj = JSON.parse(decodeURIComponent(value));
+
+                value = val_obj;
             }
             catch (e) {}
 
@@ -55,7 +55,11 @@
             var exdate = new Date();
             exdate.setDate(exdate.getDate() + (expiryDays || 365));
 
-            value = encodeURIComponent(JSON.stringify(value));
+            if (this.isPlainObject(value)) {
+                value = JSON.stringify(value);
+            }
+
+            value = encodeURIComponent(value);
 
             var cookie = [
                 name + '=' + value,
@@ -102,7 +106,7 @@
                 }
             };
         },
-        // only used for hashing json objects (used for hash mapping palette objects, used when custom colours are passed through JavaScript)
+        // only used for hashing json objects (used for hash status objects)
         hash: function(str) {
             var hash = 0,
                 i,
@@ -114,7 +118,7 @@
                 hash = (hash << 5) - hash + chr;
                 hash |= 0;
             }
-            return hash;
+            return hash & 0xfffffff; //Always positive
         },
         normaliseHex: function(hex) {
             if (hex[0] == '#') {
@@ -174,6 +178,8 @@
     var cacheStatus = {};
 
     var defaultProvider = {
+        id: null,
+        trackingId: null,
         category: 'analytics',
         onInitialise: function(rcc, status) {},
         onAllow: function(rcc) {},
@@ -193,44 +199,6 @@
     };
 
 
-    //Event Listner confirm
-    var rccConfirm = function( event, args  ) {
-
-        var status = rcc.getStatus();
-        var is_status_change = false;
-
-        //Status change
-        if (JSON.stringify(status) !== JSON.stringify(cacheStatus)) {
-            is_status_change = true;
-        }
-
-        //Call onChange revoke or allow for each provider
-        for (var i = 0; i < providers.length; i++) {
-            var category = providers[i].category;
-
-            if (is_status_change) {
-                providers[i].onStatusChange.call(providers[i], this, status, cacheStatus);
-            }
-
-            if (status[category] !== cacheStatus[category]) {
-
-                if (!status[category]) {
-                    providers[i].onRevoke.call(providers[i], this);
-                }
-                else {
-                    providers[i].onAllow.call(providers[i], this);
-                }
-            }
-        }
-
-        console.log('rccConfirm');
-        console.log(event);
-        console.log(args);
-
-        cacheStatus = status;
-    };
-
-
     rcc = {
         initialise: function(options) {
 
@@ -244,11 +212,11 @@
             //Add Event Listner for submit form
             if (this.options.formId) {
                 var el_form = window.document.getElementById(this.options.formId);
-                el_form.addEventListener('submit', rccConfirm);
+                el_form.addEventListener('submit', setConsent);
             }
 
             //Add Event Listner for confirm form
-            window.document.addEventListener('rccConfirm', rccConfirm);
+            window.document.addEventListener('rccSetConsent', setConsent);
 
             var status = this.getStatus();
 
@@ -272,6 +240,10 @@
         },
         addProvider: function (options) {
 
+            if (!options.id || options.id === '') {
+                return false;
+            }
+
             var provider = {};
 
             utils.deepExtend(provider, defaultProvider);
@@ -281,32 +253,104 @@
             }
 
             providers.push(provider);
+
+            return true;
         },
         getProviders: function() {
             return providers;
         },
+        setConsent: function( args  ) {
+
+            this.setStatus(args);
+
+            var status = this.getStatus();
+            var is_status_change = false;
+
+            //Status change
+            if (JSON.stringify(status) !== JSON.stringify(cacheStatus)) {
+                is_status_change = true;
+            }
+
+            //Call onChange revoke or allow for each provider
+            for (var i = 0; i < providers.length; i++) {
+                var category = providers[i].category;
+
+                if (is_status_change) {
+                    providers[i].onStatusChange.call(providers[i], this, status, cacheStatus);
+                }
+
+                if (status[category] !== cacheStatus[category]) {
+
+                    if (!status[category]) {
+                        providers[i].onRevoke.call(providers[i], this);
+                    }
+                    else {
+                        providers[i].onAllow.call(providers[i], this);
+                    }
+                }
+            }
+
+            console.log('rccSetConsent');
+
+            cacheStatus = status;
+        },
         getStatus: function() {
 
-            var cookie = utils.getCookie(this.options.cookie.name) || {};
+            var cookie = this.options.cookie;
+            var value = utils.getCookie(this.options.cookie.name) || {};
+            var value_hash = utils.getCookie(this.options.cookie.name + '_hash');
 
-            return cookie;
+            if (value_hash !== utils.hash(JSON.stringify(value))) {
+
+                utils.setCookie(this.options.cookie.name + '_hash', '', -1, cookie.domain, cookie.path);
+            }
+
+            return value;
+        },
+        setStatus: function( value ) {
+
+            var cookie = this.options.cookie;
+
+            if (!utils.isPlainObject(value)) {
+
+                value = utils.getCookie(this.options.cookie.name) || {};
+            }
+            else {
+                utils.setCookie(cookie.name, value, -1, cookie.domain, cookie.path);
+            }
+
+            var cookie_hash = utils.hash(JSON.stringify(value));
+
+            utils.setCookie(cookie.name + '_hash', cookie_hash, cookie.days, cookie.domain, cookie.path);
         },
         clearStatus: function() {
 
             var cookie = this.options.cookie;
 
             utils.setCookie(cookie.name, '', -1, cookie.domain, cookie.path);
+            utils.setCookie(cookie.name + '_hash', '', -1, cookie.domain, cookie.path);
         },
         hasConsented: function ( category ) {
 
             var status = this.getStatus();
 
-            if (!category) {
-                return !!status;
+            var value_hash = utils.getCookie(this.options.cookie.name + '_hash');
+
+            if (!value_hash) {
+                return false;
+            }
+            else if (!category) {
+                return true;
             }
 
             return !!status[category];
         }
+    };
+
+
+    var setConsent = function( event, args ) {
+
+        rcc.setConsent(args);
     };
 
     //Prevent run twice

@@ -11,19 +11,20 @@
     <script type="text/javascript" id="rcc_consent_GA">
         window.addEventListener("load", function() {
             window.rcc.addProvider({
-                id: 'UA-XXXXX-Y',
+                id: 'ga',
+                trackingId: 'UA-XXXXX-Y',
                 anonymizeIp: true,
                 load: function() {
                     if (typeof ga !== 'undefined') { return false; }
-                    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ // jshint ignore:line
-                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), // jshint ignore:line
-                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) // jshint ignore:line
+                    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
                 },
                 onInitialise: function (rcc, status) {
                     console.log('GA Consent init');
 
-                    if (rcc.hasConsented(this.category)) {
+                    if (rcc.hasConsented()) {
                         console.log('hasConsented: true');
                     }
                     else {
@@ -34,7 +35,7 @@
                     console.log('GA consent allow:' + this.category);
 
                     this.load();
-                    ga('create', this.id, 'auto');
+                    ga('create', this.trackingId, 'auto');
                     ga('set', 'anonymizeIp', this.anonymizeIp);
                     ga('send', 'event', 'Cookie Consent', 'Accepted');
                     ga('send', 'pageview');
@@ -58,6 +59,8 @@
     <script type="text/javascript" id="rcc_consent_ADS">
         window.addEventListener("load", function() {
             window.rcc.addProvider({
+                id: 'ads',
+                trackingId: 'UA-XXXXX-Y',
                 category: 'marketing',
                 onInitialise: function (rcc, status) {
                     console.log('ADS Consent init');
@@ -100,6 +103,7 @@
 
         app.controller('mainCtrl', ['$scope', function ($scope) {
 
+            var main = this;
         }]);
     </script>
 </head>
@@ -119,14 +123,13 @@
                     <header class="card-divider">
                         <h4 class="page-header">Declarative Cookie Form</h4>
                     </header>
-                    <form id="rcc_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                    <form id="rcc_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-init="{analytics: false, marketing:false}" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
                         <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
                             <span>Check required fields</span>
                             <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <p>{{main.$cookieFields | json}}</p>
                         <div class="callout success" data-ng-if="cookieForm.$valid && main.isSubmit">
                             <span>Submitted valid</span>
                             <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
@@ -134,16 +137,16 @@
                             </button>
                         </div>
                         <label>
-                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.analytics" class="cookie-field" placeholder="Search">
+                            <input type="checkbox" id="fAnalytics" name="fAnalytics" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.analytics" class="cookie-field" placeholder="Search">
                             Analytics
                         </label>
                         <label>
-                            <input type="checkbox" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.marketing" class="cookie-field">
+                            <input type="checkbox" id="fMarketing" name="fMarketing" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.marketing" class="cookie-field">
                             Marketing
                         </label>
 
                         <fieldset>
-                            <button type="submit" class="button primary">Accept</button>
+                            <input type="submit" class="button primary" value="Accept">
                             <button type="button" class="button alert" data-ng-click="main.isSubmit=false; main.$cookie=(null | setCookie:'consent');">Remove Cookie</button>
                         </fieldset>
                     </form>
