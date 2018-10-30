@@ -201,6 +201,27 @@
     };
 
 
+    /**
+     * Merge default status target with source not extend target
+     * @param target
+     * @param source
+     * @returns {*}
+     */
+    function mergeDefaultStatus (target, source) {
+
+        for (var prop in target) {
+            if (target.hasOwnProperty(prop)) {
+
+                if (source[prop] === true || source[prop] === false) {
+                    target[prop] = source[prop];
+                }
+            }
+        }
+
+        return target;
+    }
+
+
     rcc = {
         initialise: function(options) {
 
@@ -211,24 +232,52 @@
                 utils.deepExtend(this.options, options);
             }
 
-            //Add Event Listner for submit form
-            if (this.options.formId) {
-                var el_form = window.document.getElementById(this.options.formId);
-                el_form.addEventListener('submit', setConsent);
+            //Add Event Listner for submit form ids
+            if (this.options.formIds) {
+
+                for (var i_el_form = 0; i_el_form < this.options.formIds.length; i_el_form++) {
+
+                    var el_form = window.document.getElementById(this.options.formIds[i_el_form]);
+
+                    el_form.addEventListener('submit', setConsent);
+                }
             }
 
-            //Add Event Listner for confirm form
+            //Add Event Listner for click button
+            if (this.options.clickSelector) {
+
+                var el_click = window.document.querySelectorAll(this.options.clickSelector);
+
+                for (var i_el_click = 0; i_el_click < el_click.length; i_el_click++) {
+
+                    el_click[i_el_click].addEventListener('click', setConsent);
+                }
+            }
+
+            //Add Event Listner for set consent
             window.document.addEventListener('rccSetConsent', setConsent);
 
             //Init Categories
+            categories = [];
+            if (utils.isPlainObject(this.options.defaultStatus)) {
+                var categories = Object.keys(this.options.defaultStatus);
+            }
+
             for (var i_cat = 0; i_cat < providers.length; i_cat++) {
                 var category = providers[i_cat].category || 'analytics';
 
+                if (categories.indexOf(category) === -1) {
+                    categories.push(category);
+                }
+
                 //Add categories from provider
-                if (this.options.categories.indexOf(category) === -1) {
-                    this.options.categories.push(category);
+                if (this.options.categories.indexOf(category) >= 0) {
+                    this.options.categories.splice(this.options.categories.indexOf(category), 1);
                 }
             }
+
+            //Concat default
+            this.options.categories = categories.concat(this.options.categories);
 
             var status = this.getStatus();
 
@@ -303,12 +352,17 @@
         getStatus: function() {
 
             var cookie = this.options.cookie;
+            var curent_value = utils.getCookie(cookie.name);
+            var value_hash = utils.getCookie(cookie.name + '_hash');
             var value = this.getDefaultStatus();
-            var current_value = utils.getCookie(this.options.cookie.name) || {};
-            var value_hash = utils.getCookie(this.options.cookie.name + '_hash');
 
-            //Set default status cookie if not set as plain object
-            if (JSON.stringify(current_value) !== JSON.stringify(value)) {
+            if (utils.isPlainObject(curent_value)) {
+
+                mergeDefaultStatus(value, curent_value);
+            }
+
+            //Update cookie if current value not same as default value merge with current value.
+            if (JSON.stringify(curent_value) !== JSON.stringify(value)) {
 
                 utils.setCookie(cookie.name, value, 0, cookie.domain, cookie.path);
             }
@@ -327,7 +381,14 @@
 
             if (!utils.isPlainObject(value)) {
 
+                var curent_value = utils.getCookie(cookie.name);
+
                 value = this.getDefaultStatus();
+
+                if (utils.isPlainObject(curent_value)) {
+                    mergeDefaultStatus(value, curent_value);
+                }
+
             }
 
             var cookie_hash = utils.hash(JSON.stringify(value));
@@ -341,27 +402,17 @@
 
             utils.setCookie(cookie.name, '', -1, cookie.domain, cookie.path);
             utils.setCookie(cookie.name + '_hash', '', -1, cookie.domain, cookie.path);
+
+            cacheStatus = this.getDefaultStatus();
         },
         getDefaultStatus: function() {
 
-            var cookie = this.options.cookie;
-            var value = utils.getCookie(this.options.cookie.name);
             var default_value = utils.isPlainObject(this.options.defaultStatus) ? this.options.defaultStatus : {};
             var status = {};
 
-            if (!utils.isPlainObject(value)) {
-                value = {};
-            }
-
-
             for (var i = 0; i < this.options.categories.length; i++) {
 
-                var cat_status = value[this.options.categories[i]];
-
-                //Set default status from options default status
-                if (cat_status === undefined && default_value[this.options.categories[i]] === true) {
-                    cat_status = true;
-                }
+                var cat_status = default_value[this.options.categories[i]];
 
                 status[this.options.categories[i]] = cat_status === true ? true : false;
             }
@@ -388,6 +439,25 @@
 
     var setConsent = function( event, args ) {
 
+        if (!args && event.type === 'submit') {
+
+            console.log(event);
+            var el_input = event.target.querySelectorAll('input[name]');
+
+            if (el_input.length) {
+                var args = {};
+
+                for (var i = 0; i < el_input.length; i++) {
+
+                    if(el_input[i].type === 'checkbox' && rcc.options.categories.indexOf(el_input[i].name) >= 0) {
+                        args[el_input[i].name] = el_input[i].checked;
+                    }
+                }
+            }
+
+        }
+
+        console.log(args);
         rcc.setConsent(args);
     };
 

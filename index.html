@@ -47,11 +47,6 @@
 
                     ga('create', this.id, {'storage': 'none'});
                     ga('send', 'event', 'Cookie Consent', 'Declined');
-                },
-                onStatusChange: function (rcc, new_status, old_status) {
-                    console.log('GA consent status change');
-                    console.log(new_status);
-                    console.log(old_status);
                 }
             });
         });
@@ -77,11 +72,6 @@
                 },
                 onRevoke: function (rcc) {
                     console.log('ADS consent revoke:' + this.category);
-                },
-                onStatusChange: function (rcc, new_status, old_status) {
-                    console.log('ADS consent status change');
-                    console.log(new_status);
-                    console.log(old_status);
                 }
             });
         });
@@ -107,18 +97,13 @@
                 },
                 onRevoke: function (rcc) {
                     console.log('HOTJAR consent revoke:' + this.category);
-                },
-                onStatusChange: function (rcc, new_status, old_status) {
-                    console.log('HOTJAR consent status change');
-                    console.log(new_status);
-                    console.log(old_status);
                 }
             });
         });
     </script>
     <script>
         window.addEventListener("load", function() {
-            window.rcc.initialise({formId: 'rcc_form', cookie: {name: 'consent'}, defaultStatus: {required: true}});
+            window.rcc.initialise({formIds: ['consent_form'], clickSelector: '.rcc-consent-button', cookie: {name: 'consent'}, defaultStatus: {required: true}});
         });
     </script>
 
@@ -134,6 +119,14 @@
         app.controller('mainCtrl', ['$scope', function ($scope) {
 
             var main = this;
+
+            main.setConsent = function(args){
+
+                //var evt = new Event("rccSetConsent");
+                //document.dispatchEvent(evt);
+
+                rcc.setConsent();
+            };
         }]);
     </script>
 </head>
@@ -153,7 +146,7 @@
                     <header class="card-divider">
                         <h4 class="page-header">Declarative Cookie Form</h4>
                     </header>
-                    <form id="rcc_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="cookieForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
+                    <form id="consent_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="consentForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
                         <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
                             <span>Check required fields</span>
                             <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
@@ -166,18 +159,19 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <label>
-                            <input type="checkbox" id="fAnalytics" name="fAnalytics" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.analytics" class="cookie-field" placeholder="Search">
-                            Analytics
-                        </label>
-                        <label>
-                            <input type="checkbox" id="fMarketing" name="fMarketing" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields.marketing" class="cookie-field">
-                            Marketing
+                        <label data-ng-repeat="(key, value)  in main.$cookieFields">
+                            <input type="checkbox" name="{{key}}" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields[key]" class="cookie-field" placeholder="Search">
+                            <span data-ng-switch="key">
+                                <span ng-switch-when="required">Required</span>
+                                <span ng-switch-when="analytics">Analytics</span>
+                                <span ng-switch-when="marketing">Marketing</span>
+                                <span ng-switch-default>{{key}}</span>
+                            </span>
                         </label>
 
                         <fieldset>
                             <input type="submit" class="button primary" value="Accept">
-                            <button type="button" class="button alert" data-ng-click="main.isSubmit=false; main.$cookie=(null | setCookie:'consent');">Remove Cookie</button>
+                            <button type="button" class="button alert" data-ng-click="main.isSubmit=false;">Remove Cookie</button>
                         </fieldset>
                     </form>
                 </section>
@@ -186,14 +180,15 @@
         <br>
         <div class="row">
             <div class="small-12 medium-6 columns medium-centered">
-                <div class="callout success" data-ng-if="main.$cookie">
-                    <h4>Cookie "consent" exist in your browser</h4>
-                    <span>{{main.$cookie | json}}</span>
-                </div>
-                <div class="callout alert" data-ng-if="!main.$cookie">
-                    <h4>Cookie "consent" not exist in your browser</h4>
-                    <span>{{main.$cookie | json}}</span>
-                </div>
+                <section class="card">
+                    <header class="card-divider">
+                        <h4 class="page-header">Declarative Cookie Form</h4>
+                    </header>
+                    <br>
+                        <button type="button" class="button float-center primary" data-ng-click="main.setConsent();" >Accept</button>
+                    <button type="button" class="button float-center primary rcc-consent-button" >Accept</button>
+                    <br>
+                </section>
             </div>
         </div>
     </div>
