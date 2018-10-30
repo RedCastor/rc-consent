@@ -10,8 +10,7 @@ var uglify       = require('gulp-uglify');
 
 var path = {
     src: 'src/**/*.js',
-    dist: 'dist',
-    filename: 'rc-consent.js'
+    dist: 'dist'
 };
 
 
@@ -36,7 +35,6 @@ gulp.task('clean', require('del').bind(null, [path.dist]));
 gulp.task('scripts-minify', ['jshint'], function() {
 
     return gulp.src(path.src)
-        .pipe(concat(path.filename))
         .pipe(uglify())
         .pipe(rename({ suffix: '.min' }))
         .pipe(gulp.dest(path.dist));
@@ -56,7 +54,6 @@ gulp.task('scripts', ['jshint'], function() {
 
     return gulp.src(path.src)
         .pipe(sourcemaps.init())
-        .pipe(concat(path.filename))
         .pipe(uglify(options))
         .pipe(sourcemaps.write('.', { sourceRoot: path.dist }))
         .pipe(gulp.dest(path.dist));
