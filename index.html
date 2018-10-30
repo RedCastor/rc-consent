@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Angular Directive Cookie.</title>
 
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation-float.css"/>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.5.0/css/foundation-float.css"/>
 
     <script type="text/javascript" src="src/rc-consent.js"></script>
     <script type="text/javascript" id="rcc_consent_GA">
@@ -117,28 +117,18 @@
         });
     </script>
 
+    <style>
+        .switch-toggle-wrapper {
+            display: flex;
+            margin-bottom: 1rem;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.4/angular-cookies.js"></script>
-    <script type="text/javascript" src="vendors/rc-cookies.js"></script>
-    <script type="text/javascript">
-        'use strict';
-
-        var app = angular.module('app', ['ngCookies', 'rcCookies']);
-
-        app.controller('mainCtrl', ['$scope', function ($scope) {
-
-            var main = this;
-
-            main.setConsent = function(args){
-
-                //var evt = new Event("rccSetConsent");
-                //document.dispatchEvent(evt);
-
-                rcc.setConsent();
-            };
-        }]);
-    </script>
+        .switch-toggle-wrapper .switch {
+            margin-bottom: 0;
+        }
+    </style>
 </head>
 
 <body data-ng-app="app" >
@@ -148,60 +138,101 @@
 </div>
 <![endif]-->
 <main>
-    <div data-ng-controller="mainCtrl as main">
+    <div>
         <br>
         <div class="row">
             <div class="small-12 medium-6 columns medium-centered">
-                <section class="card">
-                    <header class="card-divider">
-                        <h4 class="page-header">Declarative Cookie Form</h4>
-                    </header>
-                    <form id="consent_form" novalidate data-ng-init="main.$cookie=('consent' | getCookie);" data-ng-submit="main.isSubmit=true; main.$cookie=('consent' | getCookie);" name="consentForm" class="card-section cookie-form" rc-cookie="consent" rc-cookie-fields="main.$cookieFields" rc-cookie-days="2">
-                        <div class="callout alert" data-ng-if="cookieForm.$invalid && main.isSubmit">
-                            <span>Check required fields</span>
-                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="callout success" data-ng-if="cookieForm.$valid && main.isSubmit">
-                            <span>Submitted valid</span>
-                            <button class="close-button" aria-label="Dismiss alert" type="button" data-ng-click="main.isSubmit=false;">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <label data-ng-repeat="(key, value)  in main.$cookieFields">
-                            <input type="checkbox" name="{{key}}" data-ng-change="main.isSubmit=false;" data-ng-model="main.$cookieFields[key]" class="cookie-field" placeholder="Search">
-                            <span data-ng-switch="key">
-                                <span ng-switch-when="required">Required</span>
-                                <span ng-switch-when="analytics">Analytics</span>
-                                <span ng-switch-when="marketing">Marketing</span>
-                                <span ng-switch-default>{{key}}</span>
-                            </span>
-                        </label>
+                <div class="reveal" id="consentModal" data-reveal data-close-on-click="false" data-close-on-esc="false">
+                    <section class="card">
+                        <header class="card-divider">
+                            <h4 class="page-header">Consent Form</h4>
+                        </header>
+                        <form id="consent_form" novalidate name="consentForm" class="card-section cookie-form" >
+                            <div class="switch-toggle-wrapper">
+                                <div class="switch tiny">
+                                    <input class="switch-input" id="tinySwitchRequired"  name="required" type="checkbox">
+                                    <label class="switch-paddle" for="tinySwitchRequired">
+                                        <span class="show-for-sr">Required</span>
+                                        <span class="switch-active" aria-hidden="true">Yes</span>
+                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                                    </label>
+                                </div>
+                                <span>Required</span>
+                            </div>
 
-                        <fieldset>
+                            <div class="switch-toggle-wrapper">
+                                <div class="switch tiny">
+                                    <input class="switch-input" id="tinySwitchAnalytics"  name="analytics" type="checkbox">
+                                    <label class="switch-paddle" for="tinySwitchAnalytics">
+                                        <span class="show-for-sr">Analytics</span>
+                                        <span class="switch-active" aria-hidden="true">Yes</span>
+                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                                    </label>
+                                </div>
+                                <span>Analytics</span>
+                            </div>
+
+                            <div class="switch-toggle-wrapper">
+                                <div class="switch tiny">
+                                    <input class="switch-input" id="tinySwitchMarketing"  name="marketing" type="checkbox">
+                                    <label class="switch-paddle" for="tinySwitchMarketing">
+                                        <span class="show-for-sr">Marketing</span>
+                                        <span class="switch-active" aria-hidden="true">Yes</span>
+                                        <span class="switch-inactive" aria-hidden="true">No</span>
+                                    </label>
+                                </div>
+                                <span>Marketing</span>
+                            </div>
+
                             <input type="submit" class="button primary" value="Accept">
-                            <button type="button" class="button alert" data-ng-click="main.isSubmit=false;">Remove Cookie</button>
-                        </fieldset>
-                    </form>
-                </section>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="small-12 medium-6 columns medium-centered">
-                <section class="card">
-                    <header class="card-divider">
-                        <h4 class="page-header">Declarative Cookie Form</h4>
-                    </header>
-                    <br>
-                        <button type="button" class="button float-center primary" data-ng-click="main.setConsent();" >Accept</button>
-                    <button type="button" class="button float-center primary rcc-consent-button" >Accept</button>
-                    <br>
-                </section>
+                        </form>
+                    </section>
+                </div>
+
+                <p><button class="button" data-open="consentModal" >Cookie Policy</button></p>
             </div>
         </div>
     </div>
 </main>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.5.0/js/foundation.js"></script>
+<script type="text/javascript">
+    (function($, rcc) {
+        "use strict";
+
+        var $consentModal = $('#consentModal');
+        var $consentModalInstance = new Foundation.Reveal($consentModal);
+
+        //Check has consented
+        $(window).on("load", function() {
+
+            if (!rcc.hasConsented()) {
+                $consentModal.foundation('open');
+            }
+        });
+
+        //On Submit close modal
+        $('#consent_form').submit(function (e) {
+
+            $consentModal.foundation('close');
+
+            return false;
+        });
+
+        //Init form field on Modal Open
+        $consentModal.on('open.zf.reveal', function () {
+
+            var consent_status = rcc.getStatus();
+
+            $( 'input[name][type="checkbox"]' ).each(function( index ) {
+
+                $( this ).attr("checked", (consent_status[this.name] === true ? true : false));
+            });
+
+
+        });
+
+    })(jQuery, rcc);
+</script>
 </body>
 </html>

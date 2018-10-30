@@ -352,7 +352,7 @@
         },
         getStatus: function() {
 
-            var cookie = this.options.cookie;
+            var cookie = rcc.options.cookie;
             var curent_value = utils.getCookie(cookie.name);
             var value_hash = utils.getCookie(cookie.name + '_hash');
             var value = this.getDefaultStatus();
@@ -438,6 +438,12 @@
     };
 
 
+    /**
+     * Set Consent for event
+     *
+     * @param event
+     * @param args
+     */
     var setConsent = function( event, args ) {
 
         if (!args && event.type === 'submit') {
