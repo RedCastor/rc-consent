@@ -12,7 +12,7 @@
     "cookies"
   ],
   "main": [
-    "dist/rc-consent.min.js"
+    "dist/rc-consent.js"
   ],
   "ignore": [
     "**/.*",
