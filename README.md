@@ -82,7 +82,7 @@ npm install rc-consent
 </script>
 ```
 
-```JS
+```javascript
 //Simple example jQuery with modal foundation
 (function($, rcc) {
     "use strict";
