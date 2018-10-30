@@ -9,6 +9,15 @@
       "url": "http://opensource.org/licenses/MIT"
     }
   ],
+  "description": "A Vanilla JS plugin which meets General Data Protection Regulations (GDPR).",
+  "main": "dist/rc-consent.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:RedCastor/rc-consent.git"
+  },
   "devDependencies": {
     "del": "^3.0.0",
     "gulp": "^3.9.1",

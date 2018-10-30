@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "Auban le Grelle <auban@viamonkey.com>",
   "homepage": "https://redcastor.io",
-  "description": "A Vanilla JS plugin which meets General Data Protection Regulations (GDPR)",
+  "description": "A Vanilla JS plugin which meets General Data Protection Regulations (GDPR).",
   "license": "MIT",
   "keywords": [
     "consent",
@@ -12,7 +12,7 @@
     "cookies"
   ],
   "main": [
-    "dist/rc-consent.js"
+    "dist/rc-consent.min.js"
   ],
   "ignore": [
     "**/.*",
