@@ -109,14 +109,7 @@ npm install rc-consent
     //Init form field on Modal Open
     $consentModal.on('open.zf.reveal', function () {
 
-        var consent_status = rcc.getStatus();
-
-        $( 'input[name][type="checkbox"]' ).each(function( index ) {
-
-            $( this ).attr("checked", (consent_status[this.name] === true ? true : false));
-        });
-
-
+        rcc.setForm($consentModal.get(0));
     });
 
 })(jQuery, rcc);

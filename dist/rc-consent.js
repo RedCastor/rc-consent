@@ -147,17 +147,10 @@
     };
     var setConsent = function(event, args) {
         if (!args && event.type === "submit") {
-            var el_input = event.target.querySelectorAll("input[name]");
-            if (el_input.length) {
-                args = {};
-                for (var i = 0; i < el_input.length; i++) {
-                    if (el_input[i].type === "checkbox" && rcc.options.categories.indexOf(el_input[i].name) >= 0) {
-                        args[el_input[i].name] = el_input[i].checked;
-                    }
-                }
-            }
+            rcc.setConsent(event.target);
+        } else {
+            rcc.setConsent(args);
         }
-        rcc.setConsent(args);
     };
     function mergeDefaultStatus(target, source) {
         for (var prop in target) {
@@ -229,6 +222,19 @@
             return providers;
         },
         setConsent: function(args) {
+            if (!!(args instanceof Element || args instanceof HTMLDocument)) {
+                var element = args;
+                var elems_input = element.querySelectorAll("input[name]");
+                args = undefined;
+                if (elems_input.length) {
+                    args = {};
+                    for (var i_el = 0; i_el < elems_input.length; i_el++) {
+                        if (elems_input[i_el].type === "checkbox" && rcc.options.categories.indexOf(elems_input[i_el].name) >= 0) {
+                            args[elems_input[i_el].name] = elems_input[i_el].checked;
+                        }
+                    }
+                }
+            }
             this.setStatus(args);
             var status = this.getStatus();
             var is_status_change = false;
@@ -299,10 +305,23 @@
             var value_hash = utils.getCookie(this.options.cookie.name + "_hash");
             if (!value_hash) {
                 return false;
-            } else if (!category) {
+            } else if (!category || category === "") {
                 return true;
             }
             return !!status[category];
+        },
+        setForm: function(element) {
+            if (!!(element instanceof Element || element instanceof HTMLDocument)) {
+                var status = this.getStatus();
+                var elems_input = element.querySelectorAll("input[name]");
+                if (elems_input.length) {
+                    for (var i = 0; i < elems_input.length; i++) {
+                        if (elems_input[i].type === "checkbox" && rcc.options.categories.indexOf(elems_input[i].name) >= 0) {
+                            elems_input[i].checked = status[elems_input[i].name] === true ? true : false;
+                        }
+                    }
+                }
+            }
         }
     };
     rcc.hasInitialised = true;
