@@ -15,7 +15,6 @@ bower install rc-consent
 npm install rc-consent
 ```
 
-
 <h4>Parameters</h4>
 - **formIds**       = array of ids for add listen event on form submit. Each input checkbox with name category set the consent status.
 - **clickSelector** = string selector for add listen event on click. This selector can be use on button click accept consent current status by add a cookie with a hash value of the current statuses.
@@ -115,4 +114,9 @@ npm install rc-consent
 })(jQuery, rcc);
 ```
 
+<h4>AngularJS</h4>
+AngularJS Module **[See AngularJS Provider]**
+
+
 [Demo]: http://redcastor.github.io/rc-consent/
+[See AngularJS Provider]: https://github.com/RedCastor/rc-consent/blob/master/src/rc-consent-angular.js

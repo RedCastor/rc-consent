@@ -3,68 +3,135 @@
 
     var module = angular.module('rcConsent', []);
 
+    module.provider('rcConsent', [function rcConsentProvider() {
 
-    module.filter('hasConsented', [function() {
+        this.$get = [function() {
+
+            return {
+                hasConsented: function( category ) {
+
+                    if (!rcc || !angular.isFunction(rcc.hasConsented)) {
+                        return false;
+                    }
+
+                    return rcc.hasConsented(category);
+                },
+                getStatus: function() {
+
+                    if (!rcc || !angular.isFunction(rcc.getStatus)) {
+                        return {};
+                    }
+
+                    return rcc.getStatus();
+                },
+                setStatus: function( statuses ) {
+
+                    if (!rcc || !angular.isFunction(rcc.setStatus)) {
+                        return false;
+                    }
+
+                    rcc.setStatus( statuses );
+
+                    return true;
+                },
+                setConsent: function( args ) {
+
+                    if (!rcc || !angular.isFunction(rcc.setConsent)) {
+                        return false;
+                    }
+
+                    rcc.setConsent( args );
+
+                    return true;
+                },
+                getProviders: function() {
+
+                    if (!rcc || !angular.isFunction(rcc.getProviders)) {
+                        return [];
+                    }
+
+                    return rcc.getProviders();
+                }
+            };
+        }];
+
+        /**
+         * Initialise rcc
+         *
+         * @param options
+         * @returns {boolean}
+         */
+        this.addProvider = function( options ) {
+
+            if (!rcc || !angular.isFunction(rcc.addProvider)) {
+                return false;
+            }
+
+            rcc.addProvider( options );
+
+            return true;
+        };
+
+
+        /**
+         * Initialise rcc
+         *
+         * @param options
+         * @returns {boolean}
+         */
+        this.initialise = function( options ) {
+
+            if (!rcc || !angular.isFunction(rcc.initialise)) {
+                return false;
+            }
+
+            rcc.initialise( options );
+
+            return true;
+        };
+
+    }]);
+
+
+    module.filter('hasConsented', [ 'rcConsent', function(rcConsent) {
 
         return function( category ) {
 
-            if (!rcc || !angular.isFunction(rcc.hasConsented)) {
-                return false;
-            }
-
-            return rcc.hasConsented(category);
+            return rcConsent.hasConsented(category);
         };
     }]);
 
 
-    module.filter('getStatus', [function() {
+    module.filter('getStatus', [ 'rcConsent', function(rcConsent) {
 
-        return function() {
-            if (!rcc || !angular.isFunction(rcc.getStatus)) {
-                return {};
-            }
+        return function( value ) {
 
-            return rcc.getStatus();
+            return rcConsent.getStatus();
         };
     }]);
 
-    module.filter('setStatus', [function() {
+    module.filter('setStatus', [ 'rcConsent', function(rcConsent) {
 
         return function( statuses ) {
 
-            if (!rcc || !angular.isFunction(rcc.setStatus)) {
-                return false;
-            }
-
-            rcc.setStatus( statuses );
-
-            return true;
+            return rcConsent.setStatus( statuses );
         };
     }]);
 
-    module.filter('setConsent', [function() {
+    module.filter('setConsent', [ 'rcConsent', function(rcConsent) {
 
-        return function( statuses ) {
+        return function( args ) {
 
-            if (!rcc || !angular.isFunction(rcc.setConsent)) {
-                return false;
-            }
-
-            rcc.setConsent( statuses );
-
-            return true;
+            return rcConsent.setConsent( args );
         };
     }]);
 
 
-    module.filter('getProviders', [function() {
+    module.filter('getProviders', [ 'rcConsent', function(rcConsent) {
 
-        return function() {
-            if (!rcc || !angular.isFunction(rcc.getProviders)) {
-                return [];
-            }
+        return function( value ) {
 
-            return rcc.getProviders();
+            return rcConsent.getProviders();
         };
     }]);
 
