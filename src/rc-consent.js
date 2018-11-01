@@ -200,7 +200,6 @@
     };
 
     var defaultOptions = {
-        formId: null,
         cookie: {
             name: 'rcc_consent',
             domain: '',
@@ -238,11 +237,14 @@
      */
     function mergeDefaultStatus (target, source) {
 
-        for (var prop in target) {
-            if (target.hasOwnProperty(prop)) {
+        if (utils.isPlainObject(source)) {
 
-                if (source[prop] === true || source[prop] === false) {
-                    target[prop] = source[prop];
+            for (var prop in target) {
+                if (target.hasOwnProperty(prop)) {
+
+                    if (source[prop] === true || source[prop] === false) {
+                        target[prop] = source[prop];
+                    }
                 }
             }
         }
@@ -259,28 +261,6 @@
 
             if (utils.isPlainObject(options)) {
                 utils.deepExtend(this.options, options);
-            }
-
-            //Add Event Listner for submit form ids
-            if (this.options.formIds) {
-
-                for (var i_el_form = 0; i_el_form < this.options.formIds.length; i_el_form++) {
-
-                    var el_form = window.document.getElementById(this.options.formIds[i_el_form]);
-
-                    el_form.addEventListener('submit', setConsent);
-                }
-            }
-
-            //Add Event Listner for click button
-            if (this.options.clickSelector) {
-
-                var el_click = window.document.querySelectorAll(this.options.clickSelector);
-
-                for (var i_el_click = 0; i_el_click < el_click.length; i_el_click++) {
-
-                    el_click[i_el_click].addEventListener('click', setConsent);
-                }
             }
 
             //Add Event Listner for set consent
@@ -410,10 +390,7 @@
             var value_hash = utils.getCookie(cookie.name + '_hash');
             var value = this.getDefaultStatus();
 
-            if (utils.isPlainObject(curent_value)) {
-
-                mergeDefaultStatus(value, curent_value);
-            }
+            mergeDefaultStatus(value, curent_value);
 
             //Update cookie if current value not same as default value merge with current value.
             if (JSON.stringify(curent_value) !== JSON.stringify(value)) {
@@ -432,18 +409,14 @@
         setStatus: function( value ) {
 
             var cookie = this.options.cookie;
+            var default_value = this.getDefaultStatus();
 
             if (!utils.isPlainObject(value)) {
 
-                var curent_value = utils.getCookie(cookie.name);
-
-                value = this.getDefaultStatus();
-
-                if (utils.isPlainObject(curent_value)) {
-                    mergeDefaultStatus(value, curent_value);
-                }
-
+                value = utils.getCookie(cookie.name);
             }
+
+            value = mergeDefaultStatus(default_value, value);
 
             var cookie_hash = utils.hash(JSON.stringify(value));
 
@@ -506,6 +479,10 @@
                 }
 
             }
+        },
+        destroy: function () {
+
+            window.document.removeEventListener('rccSetConsent', setConsent);
         }
     };
 

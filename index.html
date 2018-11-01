@@ -113,7 +113,7 @@
     </script>
     <script>
         window.addEventListener("load", function() {
-            window.rcc.initialise({formIds: ['consent_form'], clickSelector: '.rcc-consent-button', cookie: {name: 'consent'}, defaultStatus: {required: true}});
+            window.rcc.initialise({cookie: {name: 'consent'}, defaultStatus: {required: true}});
         });
     </script>
 
@@ -292,6 +292,8 @@
 
         //On Submit close modal
         $('#consent_form').submit(function (e) {
+
+            rcc.setConsent($consentModal.get(0));
 
             $consentModal.foundation('close');
 
