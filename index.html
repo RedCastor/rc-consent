@@ -9,7 +9,7 @@
 
     <script type="text/javascript" src="dist/rc-consent.min.js"></script>
     <script type="text/javascript" id="rcc_consent_GA">
-        window.addEventListener("load", function() {
+        window.addEventListener("DOMContentLoaded", function() {
             window.rcc.addProvider({
                 id: 'ga',
                 trackingId: 'UA-128378883-1',
@@ -52,7 +52,7 @@
         });
     </script>
     <script type="text/javascript" id="rcc_consent_ADS">
-        window.addEventListener("load", function() {
+        window.addEventListener("DOMContentLoaded", function() {
             window.rcc.addProvider({
                 id: 'ads',
                 category: 'marketing',
@@ -76,7 +76,7 @@
         });
     </script>
     <script type="text/javascript" id="rcc_consent_hotjar">
-        window.addEventListener("load", function() {
+        window.addEventListener("DOMContentLoaded", function() {
             window.rcc.addProvider({
                 id: 'hotjar',
                 category: 'required',
@@ -112,7 +112,7 @@
         });
     </script>
     <script>
-        window.addEventListener("load", function() {
+        window.addEventListener("DOMContentLoaded", function() {
             window.rcc.initialise({cookie: {name: 'consent'}, defaultStatus: {required: true}});
         });
     </script>
@@ -283,7 +283,7 @@
         var $consentModalInstance = new Foundation.Reveal($consentModal);
 
         //Check has consented
-        $(window).on("load", function() {
+        $( document ).ready(function() {
 
             if (!rcc.hasConsented()) {
                 $consentModal.foundation('open');

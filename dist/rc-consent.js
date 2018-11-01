@@ -307,6 +307,9 @@
                     }
                 }
             }
+        },
+        destroy: function() {
+            window.document.removeEventListener("rccSetConsent", setConsent);
         }
     };
     rcc.hasInitialised = true;

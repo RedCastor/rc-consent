@@ -27,7 +27,7 @@ npm install rc-consent
 ```html
 <script type="text/javascript" src="dist/rc-consent.js"></script>
 <script type="text/javascript" id="rcc_consent_GA">
-    window.addEventListener("load", function() {
+    window.addEventListener("DOMContentLoaded", function() {
         window.rcc.addProvider({
             id: 'ga',
             trackingId: 'UA-XXXXX-Y',
@@ -70,10 +70,8 @@ npm install rc-consent
     });
 </script>
 <script>
-    window.addEventListener("load", function() {
+    window.addEventListener("DOMContentLoaded", function() {
         window.rcc.initialise({
-            formIds: ['consent_form'], 
-            clickSelector: '.rcc-consent-button', 
             cookie: {name: 'consent'}, 
             defaultStatus: {required: true}
         });
@@ -90,7 +88,7 @@ npm install rc-consent
     var $consentModalInstance = new Foundation.Reveal($consentModal);
 
     //Check has consented
-    $(window).on("load", function() {
+    $( document ).ready(function() {
 
         if (!rcc.hasConsented()) {
             $consentModal.foundation('open');
@@ -99,6 +97,8 @@ npm install rc-consent
 
     //On Submit close modal
     $('#consent_form').submit(function (e) {
+
+        rcc.setConsent($consentModal.get(0));
 
         $consentModal.foundation('close');
 
