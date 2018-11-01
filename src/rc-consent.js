@@ -491,4 +491,4 @@
     rcc.hasInitialised = true;
 
     window.rcc = rcc;
-})(window, window.rcc || {});
+})(window.rcc || {});
