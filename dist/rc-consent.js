@@ -224,6 +224,7 @@
                     }
                 }
             }
+            var current_consented = this.hasConsented();
             this.setStatus(args);
             var status = this.getStatus();
             var is_status_change = false;
@@ -235,7 +236,7 @@
                 if (is_status_change) {
                     providers[i].onStatusChange.call(providers[i], this, status, cacheStatus);
                 }
-                if (status[category] !== cacheStatus[category]) {
+                if (!current_consented || status[category] !== cacheStatus[category]) {
                     if (!status[category]) {
                         providers[i].onRevoke.call(providers[i], this);
                     } else {

@@ -1,6 +1,6 @@
 {
   "name": "rc-consent",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "author": "Auban le Grelle <auban@viamonkey.com>",
   "homepage": "https://redcastor.io",
   "description": "Cookie consent a Vanilla JS plugin which meets General Data Protection Regulations (GDPR).",
