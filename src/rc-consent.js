@@ -299,10 +299,6 @@
                 category = providers[i].category;
 
                 providers[i].onInitialise.call(providers[i], this, status);
-
-                if (category && status[category] === true) {
-                    providers[i].onAllow.call(providers[i], this);
-                }
             }
 
             cacheStatus = status;
