@@ -22,6 +22,26 @@ npm install rc-consent
 - **defaultStatus** = object of the default status key is the category and value is boolean.
 
 
+<h4>Methods</h4>
+- **hasConsented**      = Check consented and with param category check only this category.
+- **setConsent**        = set the consent param accept object of status or dom element and search checkbox checked.
+- **setForm**           = set the form input checkbox. The name of the input is the name of the category.
+- **getStatus**         = return object status.
+- **setStatus**         = set the status param object of each status.
+- **clearStatus**       = Clear all status to default status
+- **getDefaultStatus**  = return the default status
+- **destroy**           = destroy events
+
+<h4>Provider Callbacks</h4>
+- **onInitialise**      = Call on provider initialize
+- **onAllow**           = Call on method setConsent
+- **onRevoke**          = Call on method setConsent
+- **onStatusChange**    = Call on method setConsent
+
+<h4>Events</h4>
+- **rccSetConsent**      = is a listner for setConsent.
+
+
 <h4>Usage/Example Form</h4>
 
 ```html
@@ -33,17 +53,21 @@ npm install rc-consent
             trackingId: 'UA-XXXXX-Y',
             anonymizeIp: true,
             load: function() {
-                if (typeof ga !== 'undefined') { return false; }
-                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+                if (typeof ga === 'undefined') {
+                    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+                }
             },
             onInitialise: function (rcc, status) {
                 console.log('GA Consent init');
 
                 if (rcc.hasConsented(this.category)) {
                     console.log('hasConsented: true');
+                    ga('create', this.trackingId, 'auto');
+                    ga('set', 'anonymizeIp', this.anonymizeIp);
+                    ga('send', 'pageview');
                 }
                 else {
                     console.log('hasConsented: false');
