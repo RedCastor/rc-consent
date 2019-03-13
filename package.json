@@ -1,6 +1,6 @@
 {
   "name": "rc-consent",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "author": "Auban le Grelle <auban@viamonkey.com>",
   "homepage": "https://redcastor.io",
   "licenses": [
@@ -18,7 +18,7 @@
     "angular",
     "angularJS"
   ],
-  "main": "dist/rc-consent.min.js",
+  "main": "dist/rc-consent.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0"
   },
