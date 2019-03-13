@@ -40,7 +40,25 @@
                         return false;
                     }
 
+                    if (angular.isString(args)) {
+                        args = document.querySelector(args);
+                    }
+
                     rcc.setConsent( args );
+
+                    return true;
+                },
+                setForm: function( args ) {
+
+                    if (!rcc || !angular.isFunction(rcc.setForm)) {
+                        return false;
+                    }
+
+                    if (angular.isString(args)) {
+                        args = document.querySelector(args);
+                    }
+
+                    rcc.setForm( args );
 
                     return true;
                 },
@@ -102,7 +120,7 @@
     }]);
 
 
-    module.filter('getStatus', [ 'rcConsent', function(rcConsent) {
+    module.filter('getConsentStatus', [ 'rcConsent', function(rcConsent) {
 
         return function( value ) {
 
@@ -110,7 +128,7 @@
         };
     }]);
 
-    module.filter('setStatus', [ 'rcConsent', function(rcConsent) {
+    module.filter('setConsentStatus', [ 'rcConsent', function(rcConsent) {
 
         return function( statuses ) {
 
@@ -126,8 +144,15 @@
         };
     }]);
 
+    module.filter('setConsentForm', [ 'rcConsent', function(rcConsent) {
 
-    module.filter('getProviders', [ 'rcConsent', function(rcConsent) {
+        return function( args ) {
+
+            return rcConsent.setForm( args );
+        };
+    }]);
+
+    module.filter('getConsentProviders', [ 'rcConsent', function(rcConsent) {
 
         return function( value ) {
 

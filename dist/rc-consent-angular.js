@@ -27,7 +27,20 @@
                     if (!rcc || !angular.isFunction(rcc.setConsent)) {
                         return false;
                     }
+                    if (angular.isString(args)) {
+                        args = document.querySelector(args);
+                    }
                     rcc.setConsent(args);
+                    return true;
+                },
+                setForm: function(args) {
+                    if (!rcc || !angular.isFunction(rcc.setForm)) {
+                        return false;
+                    }
+                    if (angular.isString(args)) {
+                        args = document.querySelector(args);
+                    }
+                    rcc.setForm(args);
                     return true;
                 },
                 getProviders: function() {
@@ -58,12 +71,12 @@
             return rcConsent.hasConsented(category);
         };
     } ]);
-    module.filter("getStatus", [ "rcConsent", function(rcConsent) {
+    module.filter("getConsentStatus", [ "rcConsent", function(rcConsent) {
         return function(value) {
             return rcConsent.getStatus();
         };
     } ]);
-    module.filter("setStatus", [ "rcConsent", function(rcConsent) {
+    module.filter("setConsentStatus", [ "rcConsent", function(rcConsent) {
         return function(statuses) {
             return rcConsent.setStatus(statuses);
         };
@@ -73,7 +86,12 @@
             return rcConsent.setConsent(args);
         };
     } ]);
-    module.filter("getProviders", [ "rcConsent", function(rcConsent) {
+    module.filter("setConsentForm", [ "rcConsent", function(rcConsent) {
+        return function(args) {
+            return rcConsent.setForm(args);
+        };
+    } ]);
+    module.filter("getConsentProviders", [ "rcConsent", function(rcConsent) {
         return function(value) {
             return rcConsent.getProviders();
         };
